@@ -118,6 +118,9 @@ struct KVMState
         KVMMemoryListener *ml;
         AddressSpace *as;
     } *as;
+
+    unsigned int reset_cs;
+    unsigned int reset_ip;
 };
 
 KVMState *kvm_state;
@@ -174,6 +177,22 @@ int kvm_memcrypt_encrypt_data(uint8_t *ptr, uint64_t len)
     }
 
     return 1;
+}
+
+void kvm_memcrypt_set_reset_vector(uint32_t addr)
+{
+    kvm_state->reset_cs = addr & 0xffff0000;
+    kvm_state->reset_ip = addr & 0x0000ffff;
+}
+
+int kvm_memcrypt_get_reset_vector_cs(void)
+{
+    return kvm_state->reset_cs;
+}
+
+int kvm_memcrypt_get_reset_vector_ip(void)
+{
+    return kvm_state->reset_ip;
 }
 
 /* Called with KVMMemoryListener.slots_lock held */
